@@ -1,0 +1,46 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Default=Host=postgres;Database=myapi;Username=myapi;Password=devpassword
+      - Logging__LogLevel__Default=Debug
+      - Logging__LogLevel__Microsoft.EntityFrameworkCore.Database.Command=Information
+    volumes:
+      # Mount user secrets for local dev
+      - ~/.microsoft/usersecrets:/home/appuser/.microsoft/usersecrets:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      seq:
+        condition: service_started
+
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: devpassword
+    ports:
+      # Expose postgres locally so you can connect with DBeaver/DataGrip
+      - "5432:5432"
+
+  seq:
+    image: datalust/seq:latest
+    environment:
+      ACCEPT_EULA: Y
+    ports:
+      - "5341:80"   # Seq UI at http://localhost:5341
+
+  migrations:
+    image: myapi:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: ["dotnet", "MyApi.Api.dll", "--migrate"]
+    environment:
+      - ConnectionStrings__Default=Host=postgres;Database=myapi;Username=myapi;Password=devpassword
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"   # run once and exit

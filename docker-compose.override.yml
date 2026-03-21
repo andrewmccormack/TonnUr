@@ -6,7 +6,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__Default=Host=postgres;Database=myapi;Username=myapi;Password=devpassword
+      - ConnectionStrings__Default=Host=postgres;Database=tonnur;Username=tonnur;Password=devpasswor
       - Logging__LogLevel__Default=Debug
       - Logging__LogLevel__Microsoft.EntityFrameworkCore.Database.Command=Information
     volumes:
@@ -17,6 +17,34 @@ services:
         condition: service_healthy
       seq:
         condition: service_started
+        
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    volumes:
+      - ./keycloak/tonnur-realm.json:/opt/keycloak/data/import/tonnur-realm.json
+    command: start-dev --import-realm
+    environment:
+      KC_HTTP_PORT: 8180
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloakpassword
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+    ports:
+      - "8180:8180"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/localhost/8180 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && cat <&3 | grep -q '200 OK'" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
 
   postgres:
     environment:

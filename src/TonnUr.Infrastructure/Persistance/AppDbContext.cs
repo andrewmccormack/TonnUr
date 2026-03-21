@@ -1,6 +1,5 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using TonnUr.Domain.Common;
 
 namespace TonnUr.Infrastructure.Persistance;
@@ -13,6 +12,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IPublisher pub
         var result = await base.SaveChangesAsync(ct);
         await DispatchDomainEvents(domainEvents, ct);
         return result;
+    }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(AppDbContext).Assembly);
     }
 
     private List<DomainEvent> CollectDomainEvents()

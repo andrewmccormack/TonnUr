@@ -1,6 +1,3 @@
 namespace TonnUr.Domain.Common;
 
-public class DomainEvent
-{
-    
-}
+public abstract record DomainEvent;

@@ -1,13 +1,15 @@
 using System.Security.Claims;
+using TonnUr.Application.Abstractions;
+using TonnUr.Domain.Users;
 
 namespace TonnUr.Api.Auth;
 
-public sealed class CurrentUser(IHttpContextAccessor accessor)
+public sealed class CurrentUser(IHttpContextAccessor accessor, IUserRepository userRepository) : ICurrentUser
 {
     private ClaimsPrincipal User => accessor.HttpContext?.User
                                     ?? throw new InvalidOperationException("No HTTP context");
 
-    public string Id => User.FindFirstValue("sub")
+    public string ExternalId => User.FindFirstValue("sub")
                         ?? throw new InvalidOperationException("sub claim missing");
 
     public string Username => User.FindFirstValue("preferred_username")
@@ -19,4 +21,17 @@ public sealed class CurrentUser(IHttpContextAccessor accessor)
     public bool IsAdmin => User.IsInRole("admin");
     
     public bool IsAuthenticated => User.Identity?.IsAuthenticated ?? false;
+    
+    private User? _user;
+    public async Task<User> GetDomainUserAsync(CancellationToken ct = default)
+    {
+        if (_user is not null) return _user;
+
+        _user = await userRepository.GetByExternalIdAsync(
+                    new ExternalId(ExternalId), ct)
+                ?? throw new InvalidOperationException(
+                    "Domain user not found — has UserSyncBehaviour run?");
+
+        return _user;
+    }
 }

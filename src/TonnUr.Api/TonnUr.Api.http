@@ -1,0 +1,11 @@
+@TonnUr.Api_HostAddress = http://localhost:5128
+
+GET {{TonnUr.Api_HostAddress}}/todos/
+Accept: application/json
+
+###
+
+GET {{TonnUr.Api_HostAddress}}/todos/1
+Accept: application/json
+
+###

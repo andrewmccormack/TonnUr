@@ -1,7 +1,7 @@
 using MediatR;
 using TonnUr.Domain.Common;
 
-namespace TonnUr.Infrastructure.Common;
+namespace TonnUr.Application.Common;
 
 public interface ICommand : IRequest<Result> {}
 public interface ICommand<TResponse> : IRequest<Result<TResponse>> {}

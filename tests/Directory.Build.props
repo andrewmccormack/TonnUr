@@ -1,4 +1,3 @@
-<!-- tests/Directory.Build.props -->
 <Project>
     <PropertyGroup>
         <IsPackable>false</IsPackable>

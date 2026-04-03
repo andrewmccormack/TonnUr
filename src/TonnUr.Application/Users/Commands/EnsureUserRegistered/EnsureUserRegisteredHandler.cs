@@ -3,7 +3,7 @@ using TonnUr.Application.Abstractions;
 using TonnUr.Domain.Common;
 using TonnUr.Domain.Users;
 
-namespace TonnUr.Infrastructure.Users.Commands.EnsureUserRegistered;
+namespace TonnUr.Application.Users.Commands.EnsureUserRegistered;
 
 public sealed class EnsureUserRegisteredHandler(
     IUserRepository userRepository,

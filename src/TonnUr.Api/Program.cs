@@ -1,6 +1,7 @@
 using TonnUr.Api;
 using TonnUr.Api.Auth;
 using TonnUr.Application.Abstractions;
+using TonnUr.Application;
 using TonnUr.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);

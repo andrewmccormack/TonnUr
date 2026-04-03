@@ -1,8 +1,7 @@
 using MediatR;
 using TonnUr.Application.Abstractions;
 using TonnUr.Domain.Users;
-using TonnUr.Infrastructure.Common;
-using TonnUr.Infrastructure.Users.Commands.EnsureUserRegistered;
+using TonnUr.Application.Users.Commands.EnsureUserRegistered;
 
 namespace TonnUr.Application.Common.Behaviours;
 
@@ -12,7 +11,7 @@ public sealed class UserSyncBehaviour<TRequest, TResponse>(
     ISender sender,
     ICurrentUser currentUser)
     : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : ICommand  // only runs for commands, not queries
+    where TRequest: ICommand  // only runs for commands, not queries
 {
     public async Task<TResponse> Handle(
         TRequest request,

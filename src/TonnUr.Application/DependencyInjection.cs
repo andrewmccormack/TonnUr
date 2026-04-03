@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using TonnUr.Application.Common.Behaviours;
 
-namespace TonnUr.Infrastructure;
+namespace TonnUr.Application;
 
 public static class ApplicationDependencyInjection
 {

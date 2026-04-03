@@ -20,7 +20,7 @@ public sealed class UserSyncBehaviour<TRequest, TResponse>(
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated)
-            return await next();
+            return await next(ct);
 
         var keycloakId = new ExternalId(currentUser.ExternalId);
         var exists = await userRepository.GetByExternalIdAsync(keycloakId, ct);
@@ -31,6 +31,6 @@ public sealed class UserSyncBehaviour<TRequest, TResponse>(
                 currentUser.Email,
                 currentUser.Username), ct);
 
-        return await next();
+        return await next(ct);
     }
 }

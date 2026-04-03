@@ -29,4 +29,14 @@ public class User : AggregateRoot
         user.RaiseDomainEvent(new UserRegisteredEvent(user.Id, email));
         return user;
     }
+    
+    public Result Deactivate()
+    {
+        if (Status == UserStatus.Inactive)
+            return Result.Failure("User is already inactive");
+
+        Status = UserStatus.Inactive;
+        this.RaiseDomainEvent(new UserDeactivatedEvent(Id));
+        return Result.Success();
+    }
 }

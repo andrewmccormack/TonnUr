@@ -1,11 +1,16 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TonnUr.Domain.Common;
+using TonnUr.Domain.Communities;
+using TonnUr.Domain.Users;
 
 namespace TonnUr.Infrastructure.Persistance;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options, IPublisher publisher) : DbContext(options)
 {
+    public DbSet<Community> Communities { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
+
     public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
         var domainEvents = CollectDomainEvents();
@@ -16,8 +21,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IPublisher pub
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(
-            typeof(AppDbContext).Assembly);
+        modelBuilder.Ignore<DomainEvent>();
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 
     private List<DomainEvent> CollectDomainEvents()

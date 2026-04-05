@@ -69,6 +69,12 @@ public class CommunityConfiguration : IEntityTypeConfiguration<Community>
                 .IsRequired();
 
             membersBuilder.HasKey("community_id", nameof(CommunityMember.UserId));
+
+            membersBuilder.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(nameof(CommunityMember.UserId))
+                .HasPrincipalKey(nameof(User.Id))
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

@@ -67,6 +67,50 @@ namespace TonnUr.Infrastructure.Persistance.Migrations
                     b.ToTable("communities", (string)null);
                 });
 
+            modelBuilder.Entity("TonnUr.Domain.Users.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("external_id");
+
+                    b.Property<DateTimeOffset>("RegisteredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("registered_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("username");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique();
+
+                    b.ToTable("users", (string)null);
+                });
+
             modelBuilder.Entity("TonnUr.Domain.Communities.Community", b =>
                 {
                     b.OwnsMany("TonnUr.Domain.Communities.CommunityMember", "Members", b1 =>
@@ -89,7 +133,15 @@ namespace TonnUr.Infrastructure.Persistance.Migrations
 
                             b1.HasKey("community_id", "UserId");
 
+                            b1.HasIndex("UserId");
+
                             b1.ToTable("community_members", (string)null);
+
+                            b1.HasOne("TonnUr.Domain.Users.User", null)
+                                .WithMany()
+                                .HasForeignKey("UserId")
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .IsRequired();
 
                             b1.WithOwner()
                                 .HasForeignKey("community_id");

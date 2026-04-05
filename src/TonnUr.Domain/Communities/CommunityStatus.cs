@@ -4,4 +4,5 @@ public enum CommunityStatus
 {
     Active,
     Archived,
+    Suspended
 }

@@ -1,6 +1,7 @@
 using System;
 using FluentAssertions;
 using TonnUr.Domain.Communities;
+using TonnUr.Domain.Tests.Common;
 using TonnUr.Domain.Users;
 using Xunit;
 
@@ -11,29 +12,76 @@ public class CommunityTests
     [Fact]
     public void Create_ShouldReturnCommunity_WithActiveStatus()
     {
-        var ownerId = new UserId(Guid.NewGuid());
-        var name = "Test Community";
-        var  description = "This is a test community";
-        // Act
-        var community = Community.Create(name, description, ownerId);
+        var community = CommunityFactory.Create();
 
-        // Assert
         community.Status.Should().Be(CommunityStatus.Active);
-        community.Name.Should().Be(name);
-        community.Description.Should().Be(description);
-        community.OwnerId.Should().Be(ownerId);
     }
-    
+
     [Fact]
-    public void Create_ShouldRaise_OrderCreatedEvent()
+    public void Create_ShouldReturnCommunity_WithDraftVisibility()
+    {
+        var community = CommunityFactory.Create();
+
+        community.Visibility.Should().Be(CommunityVisibilty.Draft);
+    }
+
+    [Fact]
+    public void Create_ShouldSetNameAndDescription()
+    {
+        var community = CommunityFactory.Create(name: "Test Community", description: "A description");
+
+        community.Name.Should().Be("Test Community");
+        community.Description.Should().Be("A description");
+    }
+
+    [Fact]
+    public void Create_ShouldSetSlug()
+    {
+        var community = CommunityFactory.Create(slug: "test-community");
+
+        community.Slug.Value.Should().Be("test-community");
+    }
+
+    [Fact]
+    public void Create_ShouldAddOwnerAsMember()
     {
         var ownerId = new UserId(Guid.NewGuid());
-        var name = "Test Community";
-        var  description = "This is a test community";
-        
-        var community = Community.Create(name, description, ownerId);
+
+        var community = CommunityFactory.Create(ownerId: ownerId);
+
+        community.Members.Should().ContainSingle()
+            .Which.Should().Match<CommunityMember>(m =>
+                m.UserId == ownerId && m.Role == CommunityRole.Owner);
+    }
+
+    [Fact]
+    public void Create_ShouldRaiseCommunityCreatedEvent()
+    {
+        var community = CommunityFactory.Create();
 
         community.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<CommunityCreatedEvent>();
+    }
+
+    [Fact]
+    public void Archive_ShouldSetStatusToArchived()
+    {
+        var community = CommunityFactory.Create();
+
+        var result = community.Archive();
+
+        result.IsSuccess.Should().BeTrue();
+        community.Status.Should().Be(CommunityStatus.Archived);
+    }
+
+    [Fact]
+    public void Archive_WhenAlreadyArchived_ReturnsFailure()
+    {
+        var community = CommunityFactory.Create();
+        community.Archive();
+
+        var result = community.Archive();
+
+        result.IsFailure.Should().BeTrue();
     }
 }
